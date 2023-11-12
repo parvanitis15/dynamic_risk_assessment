@@ -15,17 +15,16 @@ test_data_path = os.path.join(config['test_data_path'], 'testdata.csv')
 prod_deployment_path = os.path.join(config['prod_deployment_path'])
 
 
-def get_model_predictions(test_df):
+def get_model_predictions(test_df, model):
     """
-    Score the model on the test data
+    Score the model on the test data and return the predictions
     :param test_df: test data
     :type test_df: pandas.DataFrame
+    :param model: trained model
+    :type model: sklearn.linear_model.LogisticRegression
     :return: predictions
     :rtype: list
     """
-    # Load the trained model from the production deployment folder
-    model = pickle.load(open(os.path.join(prod_deployment_path, 'trainedmodel.pkl'), 'rb'))
-
     # Discard 'corporation' column
     test_df = test_df.drop(columns=['corporation'], axis=1)
 
@@ -45,7 +44,7 @@ def get_dataframe_summary():
     Calculate summary statistics (means, medians, stds, etc) for each numeric column of the final dataset and
     return them as a list
     :return: summary statistics
-    :rtype: list
+    :rtype: list of pandas.Series
     """
     # Read the dataset from the output folder
     df = pd.read_csv(dataset_csv_path)
@@ -129,8 +128,11 @@ if __name__ == '__main__':
     # Get test data
     test_data = pd.read_csv(test_data_path)
 
+    # Load the trained model from the production deployment folder
+    model = pickle.load(open(os.path.join(prod_deployment_path, 'trainedmodel.pkl'), 'rb'))
+
     # Get model predictions
-    predictions = get_model_predictions(test_data)
+    predictions = get_model_predictions(test_data, model)
 
     # Get summary statistics
     summary = get_dataframe_summary()

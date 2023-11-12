@@ -19,15 +19,17 @@ test_data_path = os.path.join(config['test_data_path'], 'testdata.csv')
 output_model_path = os.path.join(config['output_model_path'], 'trainedmodel.pkl')
 
 
-def score_model():
+def score_model(model):
     """
     Score the model on the test data
+
+    :param model: trained model
+    :type model: sklearn.linear_model.LogisticRegression
+    :return: F1 score
+    :rtype: float
     """
     # Read the test data
     df = pd.read_csv(test_data_path)
-
-    # Load the trained model
-    model = pickle.load(open(output_model_path, 'rb'))
 
     # Discard 'corporation' column
     df = df.drop(columns=['corporation'], axis=1)
@@ -43,6 +45,13 @@ def score_model():
     with open('latestscore.txt', 'w') as f:
         f.write(str(score))
 
+    return score
+
 
 if __name__ == '__main__':
-    score_model()
+    # Load the model from the output_model_path
+    model = pickle.load(open(output_model_path, 'rb'))
+
+    # Calculate the score and print it to the console
+    score = score_model(model)
+    print("F1 score: %.2f%%" % (score * 100.0))
